@@ -1,4 +1,4 @@
-package com.example.multidb.master.repository;
+package com.example.multidb.master.repository.jpa;
 
 import com.example.multidb.master.domain.Master;
 import org.springframework.data.jpa.repository.JpaRepository;

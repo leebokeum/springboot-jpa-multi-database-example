@@ -17,8 +17,8 @@ public class DataSourceProperties {
 
     //  스프링부트의 기본 jdbc 로 hikari를 사용하고 있다.
 
-    @Bean(name = "masterDataSource")
     @Primary //주가 되는 DataSource를 지정해 줍니다.
+    @Bean(name = "masterDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.master") // properties 속성을 지정해 줍니다
     public DataSource masterDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();

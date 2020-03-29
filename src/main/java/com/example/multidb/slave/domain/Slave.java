@@ -10,9 +10,9 @@ import javax.persistence.*;
 public class Slave {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name = "column1")
-    private  String column1;
+    @Column(name = "id")
+    private  String id;
 
-    @Column(name = "column2")
-    private String column2;
+    @Column(name = "column1")
+    private String column1;
 }

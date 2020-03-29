@@ -1,11 +1,16 @@
 package com.example.multidb.slave.config;
 
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -19,7 +24,8 @@ import javax.sql.DataSource;
 @EnableJpaRepositories(
         entityManagerFactoryRef = "slaveEntityManagerFactory",
         transactionManagerRef = "slaveTransactionManager",
-        basePackages = { "com.example.multidb.slave.repository" })
+        basePackages = { "com.example.multidb.slave.repository.jpa" })
+@MapperScan(basePackages="com.example.multidb.slave.repository.mybatis", sqlSessionFactoryRef="slaveSessionFactory")
 public class SlaveDataSourceConfig {
     private final DataSource slaveDataSource;
 
@@ -40,6 +46,21 @@ public class SlaveDataSourceConfig {
     @Bean("slaveTransactionManager")
     public PlatformTransactionManager slaveTransactionManager(EntityManagerFactoryBuilder builder) {
         return new JpaTransactionManager(slaveEntityManagerFactory(builder).getObject());
+    }
+
+    /* -----------------mybatis 셋팅------------------------------------- */
+    @Bean(name = "slaveSessionFactory")
+    public SqlSessionFactory slaveSessionFactory(@Qualifier("slaveDataSource") DataSource dataSource) throws Exception {
+        SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
+        sessionFactoryBean.setDataSource(dataSource);
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        sessionFactoryBean.setMapperLocations(resolver.getResources("classpath:mapper/slave/*.xml"));
+        return sessionFactoryBean.getObject();
+    }
+
+    @Bean(name = "slaveSqlSessionTemplate")
+    public SqlSessionTemplate slaveSqlSessionTemplate(@Qualifier( "slaveSessionFactory") SqlSessionFactory slaveSessionFactory) {
+        return new SqlSessionTemplate(slaveSessionFactory);
     }
 
 }
